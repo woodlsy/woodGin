@@ -5,13 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/natefinch/lumberjack"
 	"github.com/woodlsy/woodGin/config"
+	"github.com/woodlsy/woodGin/helper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 var Logger *zap.SugaredLogger
+
+var logFilePath string
 
 func Enabled() {
 
@@ -22,16 +26,47 @@ func Enabled() {
 		stdoutLevel = zapcore.ErrorLevel
 	}
 
-	file := openLogFile()
+	getFilePathByConfig()
+
+	infoFile := openLogFile("info")
+	errorFile := openLogFile("error")
+	warnFile := openLogFile("warn")
+	debugFile := openLogFile("debug")
+
 	encoder := getEncoder()
 	consoleEncoder := getConsoleEncoder()
 	newCore := zapcore.NewTee(
+		// 写入文件
 		zapcore.NewCore(
 			zapcore.NewConsoleEncoder(encoder),
-			file,
-			zapcore.DebugLevel,
-		), // 写入文件
-		zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), stdoutLevel), // 写入控制台
+			infoFile,
+			zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+				return level == zap.InfoLevel
+			}),
+		),
+		zapcore.NewCore(
+			zapcore.NewConsoleEncoder(encoder),
+			errorFile,
+			zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+				return level == zap.ErrorLevel
+			}),
+		),
+		zapcore.NewCore(
+			zapcore.NewConsoleEncoder(encoder),
+			warnFile,
+			zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+				return level == zap.WarnLevel
+			}),
+		),
+		zapcore.NewCore(
+			zapcore.NewConsoleEncoder(encoder),
+			debugFile,
+			zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+				return level == zap.DebugLevel
+			}),
+		),
+		// 写入控制台
+		zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), stdoutLevel),
 	)
 
 	//core := zapcore.NewCore(
@@ -46,9 +81,17 @@ func Enabled() {
 	fmt.Println("日志模块加载成功")
 }
 
-func openLogFile() zapcore.WriteSyncer {
+func getFilePathByConfig() {
+	dir, _ := filepath.Split(config.Configs.Log.FilePath)
+	if string(dir[len(dir)-1]) != "/" {
+		dir = helper.Join("", dir, "/")
+	}
+	logFilePath = dir
+}
+
+func openLogFile(level string) zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:   config.Configs.Log.FilePath,
+		Filename:   helper.Join("", logFilePath, level, ".log"),
 		MaxSize:    config.Configs.Log.MaxSize,
 		MaxBackups: config.Configs.Log.MaxBackups,
 		MaxAge:     config.Configs.Log.MaxAge,
