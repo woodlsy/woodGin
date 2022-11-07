@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/woodlsy/woodGin/helper"
 	"github.com/woodlsy/woodGin/log"
 	"go.uber.org/zap"
 	"net"
@@ -52,7 +53,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 						//zap.String("request", string(httpRequest)),
 					)
 				}
-				c.JSON(http.StatusOK, "系统错误，请联系管理员")
+				c.JSON(http.StatusOK, helper.ErrorSystem)
 			}
 		}()
 		c.Next()

@@ -54,3 +54,7 @@ func (o Orm) Where(query interface{}, args ...interface{}) *gorm.DB {
 func (o Orm) Select(query interface{}, args ...interface{}) *gorm.DB {
 	return o.conn().Select(query, args...)
 }
+
+func (o Orm) Source() *gorm.DB {
+	return o.conn()
+}
