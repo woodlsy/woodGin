@@ -16,7 +16,7 @@ func P(content ...interface{}) {
 	}
 	formatContent := "<!---- debug\n"
 	for i := 0; i < len(content); i++ {
-		formatContent = Join("", formatContent, "%+v")
+		formatContent = Join(" ", formatContent, "%+v")
 	}
 	formatContent = Join("", formatContent, "\ndebug ----!>\n")
 	fmt.Printf(formatContent, content...)

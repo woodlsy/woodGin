@@ -27,6 +27,7 @@ type DbLogger struct {
 }
 
 func NewDbLogger(level ormLogger.LogLevel, config Config) *DbLogger {
+
 	var (
 		infoStr      = "%s\n[info] "
 		warnStr      = "%s\n[warn] "
@@ -88,7 +89,6 @@ func (l DbLogger) Error(ctx context.Context, msg string, data ...interface{}) {
 
 // Trace print sql message
 func (l DbLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-
 	//if l.LogLevel <= ormLogger.Silent {
 	//	return
 	//}
