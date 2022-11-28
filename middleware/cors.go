@@ -6,8 +6,9 @@ import (
 )
 
 // Cors 直接放行所有跨域请求并放行所有 OPTIONS 方法
-func Cors() gin.HandlerFunc {
+func Cors(headers ...map[string]string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		method := c.Request.Method
 		origin := c.Request.Header.Get("Origin")
 		// 允许 Origin 字段中的域发送请求
@@ -21,6 +22,12 @@ func Cors() gin.HandlerFunc {
 		// 配置是否可以带认证信息
 		c.Header("Access-Control-Allow-Credentials", "true")
 
+		if len(headers) > 0 {
+			for k, v := range headers[0] {
+				c.Header(k, v)
+			}
+		}
+
 		// 放行所有OPTIONS方法
 		if method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
@@ -28,4 +35,8 @@ func Cors() gin.HandlerFunc {
 		// 处理请求
 		c.Next()
 	}
+}
+
+func Set() {
+
 }
