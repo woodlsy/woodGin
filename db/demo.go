@@ -26,9 +26,11 @@ func GetTableAttributes(dbName string, tableName string) []tableAttribute {
 		if strings.HasPrefix(item.Type, "varchar") ||
 			strings.HasPrefix(item.Type, "char") ||
 			strings.HasPrefix(item.Type, "timestamp") ||
+			strings.HasPrefix(item.Type, "text") ||
 			strings.HasPrefix(item.Type, "datetime") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "string")
-		} else if strings.HasPrefix(item.Type, "int") {
+		} else if strings.HasPrefix(item.Type, "int") ||
+			strings.HasPrefix(item.Type, "mediumint") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "int")
 		} else if strings.HasPrefix(item.Type, "tinyint") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "int8")
