@@ -7,4 +7,5 @@ type ConfigObj struct {
 	App       App         `json:"app"`
 	Aliyun    Aliyun      `json:"aliyun"`
 	Api       Api         `json:"api"`
+	RabbitMq  RabbitMq    `json:"rabbitMq"`
 }

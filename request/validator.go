@@ -63,7 +63,7 @@ func verify(value reflect.Value) (err error) {
 			}
 			if verifyRuleArr[r] == "required" {
 				if isEmpty(value.Field(i)) {
-					return errors.New(tag.Get("form") + "值不能为空")
+					return errors.New(field.Name + "值不能为空")
 				}
 			} else {
 				if !compareVerify(value.Field(i), verifyRuleArr[r]) {
