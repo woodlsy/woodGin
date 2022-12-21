@@ -27,6 +27,7 @@ func GetTableAttributes(dbName string, tableName string) []tableAttribute {
 			strings.HasPrefix(item.Type, "char") ||
 			strings.HasPrefix(item.Type, "timestamp") ||
 			strings.HasPrefix(item.Type, "text") ||
+			strings.HasPrefix(item.Type, "date") ||
 			strings.HasPrefix(item.Type, "datetime") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "string")
 		} else if strings.HasPrefix(item.Type, "int") ||
