@@ -1,18 +1,27 @@
 package curl
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/woodlsy/woodGin/helper"
 	"github.com/woodlsy/woodGin/log"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
+	"os"
 	"strings"
 )
 
 type Request struct {
-	Response *http.Response
-	Body     []byte
-	Request  *http.Request
-	Url      string
-	Header   http.Header
+	Response    *http.Response
+	Body        []byte
+	Request     *http.Request
+	Url         string
+	Header      http.Header
+	RequestBody *bytes.Buffer
+	Data        map[string]interface{}
 }
 
 func Instance() Request {
@@ -25,6 +34,77 @@ func (r *Request) Get(url string) string {
 
 func (r *Request) Post(url string) string {
 	return r.FetchString(url, "POST")
+}
+
+func (r *Request) PostLocalFile(url string, filePath string) string {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Logger.Error("待上传文件打不开", filePath)
+		return ""
+	}
+	defer file.Close()
+	body := new(bytes.Buffer)
+
+	writer := multipart.NewWriter(body)
+
+	//for key, val := range r.Data {
+	//	_ = writer.WriteField(key, val)
+	//}
+
+	//formFile, err := r.createFormFile(writer, file, "file", filePath)
+
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			escapeQuotes("file"), escapeQuotes(filePath)))
+	contentType := helper.GetFileMiMeType(file)
+	helper.P(escapeQuotes("file"), escapeQuotes(filePath))
+	h.Set("Content-Type", contentType)
+
+	formFile, err := writer.CreatePart(h)
+
+	//formFile, err := writer.CreateFormFile("file", filePath)
+	if err != nil {
+		log.Logger.Error("CreateFormFile err: %v, file: %s", err, file)
+		return ""
+	}
+	_, err = io.Copy(formFile, file)
+	if err != nil {
+		return ""
+	}
+	writer.Close()
+	helper.P(writer.FormDataContentType(), " writer.FormDataContentType()")
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+	r.RequestBody = body
+	return r.FetchString(url, "POST")
+}
+
+//
+// createFormFile
+// @Description: 重新writer.CreateFormFile
+// @receiver r
+// @param writer
+// @param file
+// @param filedName
+// @param filePath
+// @return io.Writer
+// @return error
+//
+func (r *Request) createFormFile(writer *multipart.Writer, file *os.File, filedName string, filePath string) (io.Writer, error) {
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			escapeQuotes(filedName), escapeQuotes(filePath)))
+	contentType := helper.GetFileMiMeType(file)
+	helper.P(escapeQuotes(filedName), escapeQuotes(filePath))
+	h.Set("Content-Type", contentType)
+	return writer.CreatePart(h)
+}
+
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
 }
 
 func (r *Request) SetHeader(key string, value string) *Request {
@@ -80,7 +160,8 @@ func (r *Request) NewRequest(url string, method string) (*Request, error) {
 	r.Url = url
 	var err error
 	method = strings.ToUpper(method)
-	r.Request, err = http.NewRequest(method, url, nil)
+
+	r.Request, err = http.NewRequest(method, url, r.RequestBody)
 	if err != nil {
 		log.Logger.Error("创建curl请求失败", url, err)
 	}

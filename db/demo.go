@@ -31,7 +31,8 @@ func GetTableAttributes(dbName string, tableName string) []tableAttribute {
 			strings.HasPrefix(item.Type, "datetime") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "string")
 		} else if strings.HasPrefix(item.Type, "int") ||
-			strings.HasPrefix(item.Type, "mediumint") {
+			strings.HasPrefix(item.Type, "mediumint") ||
+			strings.HasPrefix(item.Type, "smallint") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "int")
 		} else if strings.HasPrefix(item.Type, "tinyint") {
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "int8")
