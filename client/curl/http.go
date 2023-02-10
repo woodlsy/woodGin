@@ -50,20 +50,7 @@ func (r *Request) PostLocalFile(url string, filePath string) string {
 	//for key, val := range r.Data {
 	//	_ = writer.WriteField(key, val)
 	//}
-
-	//formFile, err := r.createFormFile(writer, file, "file", filePath)
-
-	h := make(textproto.MIMEHeader)
-	h.Set("Content-Disposition",
-		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
-			escapeQuotes("file"), escapeQuotes(filePath)))
-	contentType := helper.GetFileMiMeType(file)
-	helper.P(escapeQuotes("file"), escapeQuotes(filePath))
-	h.Set("Content-Type", contentType)
-
-	formFile, err := writer.CreatePart(h)
-
-	//formFile, err := writer.CreateFormFile("file", filePath)
+	formFile, err := r.createFormFile(writer, "file", filePath)
 	if err != nil {
 		log.Logger.Error("CreateFormFile err: %v, file: %s", err, file)
 		return ""
@@ -90,13 +77,12 @@ func (r *Request) PostLocalFile(url string, filePath string) string {
 // @return io.Writer
 // @return error
 //
-func (r *Request) createFormFile(writer *multipart.Writer, file *os.File, filedName string, filePath string) (io.Writer, error) {
+func (r *Request) createFormFile(writer *multipart.Writer, filedName string, filePath string) (io.Writer, error) {
 	h := make(textproto.MIMEHeader)
 	h.Set("Content-Disposition",
 		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
 			escapeQuotes(filedName), escapeQuotes(filePath)))
-	contentType := helper.GetFileMiMeType(file)
-	helper.P(escapeQuotes(filedName), escapeQuotes(filePath))
+	contentType := helper.GetFileMiMeType(filePath)
 	h.Set("Content-Type", contentType)
 	return writer.CreatePart(h)
 }
@@ -161,7 +147,16 @@ func (r *Request) NewRequest(url string, method string) (*Request, error) {
 	var err error
 	method = strings.ToUpper(method)
 
-	r.Request, err = http.NewRequest(method, url, r.RequestBody)
+	if r.RequestBody == nil {
+		r.RequestBody = nil
+	}
+
+	if r.RequestBody == nil {
+		r.Request, err = http.NewRequest(method, url, nil)
+	} else {
+		r.Request, err = http.NewRequest(method, url, r.RequestBody)
+	}
+
 	if err != nil {
 		log.Logger.Error("创建curl请求失败", url, err)
 	}
