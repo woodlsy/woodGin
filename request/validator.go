@@ -67,7 +67,7 @@ func verify(value reflect.Value) (err error) {
 				}
 			} else {
 				if !compareVerify(value.Field(i), verifyRuleArr[r]) {
-					return errors.New(tag.Get("form") + "长度或值不在合法范围")
+					return errors.New(field.Name + "长度或值不在合法范围")
 				}
 			}
 		}
