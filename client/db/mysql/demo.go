@@ -20,6 +20,9 @@ type tableAttribute struct {
 func GetTableAttributes(dbName string, tableName string) []tableAttribute {
 
 	result := make([]tableAttribute, 0)
+	if _, ok := db[dbName]; !ok {
+		panic(fmt.Sprintf("数据库%s未配置", dbName))
+	}
 	db[dbName].Raw(fmt.Sprintf("SHOW FULL COLUMNS FROM %s", tableName)).Scan(&result)
 	fmt.Println("===================表结构start====================")
 	for _, item := range result {
