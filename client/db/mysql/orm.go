@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"reflect"
 	"strings"
+	"fmt"
 )
 
 type Orm struct {
@@ -27,12 +28,12 @@ func Enabled() {
 }
 
 func (o *Orm) ChangeConn() *Orm {
+	if _, ok := db[o.DatabaseName]; !ok {
+		//log.Logger.Errorf("切换的数据库%s不存在", name)
+		helper.P(db)
+		panic(fmt.Sprintf("切换的数据库{%s}不存在", o.DatabaseName))
+	}
 	if o.conn != db[o.DatabaseName] {
-		if _, ok := db[o.DatabaseName]; !ok {
-			//log.Logger.Errorf("切换的数据库%s不存在", name)
-			helper.P(db)
-			panic("切换的数据库不存在")
-		}
 		o.conn = db[o.DatabaseName]
 	}
 	return o
@@ -135,6 +136,16 @@ func (o Orm) SqlCondition(m interface{}, where map[string]interface{}, orderBy s
 	}
 	if fields != "" {
 		tx.Select(fields)
+	}
+	return tx
+}
+
+func  (o *Orm) ParseWhere(tx *gorm.DB,where map[string]interface{}) *gorm.DB {
+	if len(where) > 0 {
+		whereSqlString, whereValueArray := parseWhere(where)
+		if whereSqlString != "" {
+			tx = tx.Where(whereSqlString, whereValueArray...)
+		}
 	}
 	return tx
 }

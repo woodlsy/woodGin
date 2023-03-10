@@ -61,13 +61,17 @@ func verify(value reflect.Value) (err error) {
 			if verifyRuleArr[r] == "" {
 				continue
 			}
+			nickName := tag.Get("nickName")
+			if nickName == "" {
+				nickName = field.Name
+			}
 			if verifyRuleArr[r] == "required" {
 				if isEmpty(value.Field(i)) {
-					return errors.New(field.Name + "值不能为空")
+					return errors.New(nickName + "值不能为空")
 				}
 			} else {
 				if !compareVerify(value.Field(i), verifyRuleArr[r]) {
-					return errors.New(field.Name + "长度或值不在合法范围")
+					return errors.New(nickName + "长度或值不在合法范围")
 				}
 			}
 		}

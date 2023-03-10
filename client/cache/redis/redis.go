@@ -94,7 +94,8 @@ func (c *Cache) Del(key string) bool {
 }
 
 func (c *Cache) Close() error {
-	return c.redis.Close()
+	//return c.redis.Close()
+	return nil
 }
 
 func (c *Cache) Expire(key string, ttl int) bool {
