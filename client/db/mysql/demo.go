@@ -36,6 +36,8 @@ func GetTableAttributes(c *gin.Context, dbName string, tableName string) []table
 			strings.HasPrefix(item.Type, "char") ||
 			strings.HasPrefix(item.Type, "timestamp") ||
 			strings.HasPrefix(item.Type, "text") ||
+			strings.HasPrefix(item.Type, "mediumtext") ||
+			strings.HasPrefix(item.Type, "longtext") ||
 			strings.HasPrefix(item.Type, "date") ||
 			strings.HasPrefix(item.Type, "datetime") {
 			str = helper.Join(" ", str, UderscoreToUpperCamelCase(item.Field), "string")
@@ -45,7 +47,10 @@ func GetTableAttributes(c *gin.Context, dbName string, tableName string) []table
 			strings.HasPrefix(item.Type, "smallint") {
 			str = helper.Join(" ", str, UderscoreToUpperCamelCase(item.Field), "int")
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "int")
-		} else if strings.HasPrefix(item.Type, "tinyint") {
+		}else if strings.HasPrefix(item.Type, "decimal")  {
+			str = helper.Join(" ", str, UderscoreToUpperCamelCase(item.Field), "float64")
+			fmt.Println(UderscoreToUpperCamelCase(item.Field), "float64")
+		}else if strings.HasPrefix(item.Type, "tinyint") {
 			str = helper.Join(" ", str, UderscoreToUpperCamelCase(item.Field), "int8")
 			fmt.Println(UderscoreToUpperCamelCase(item.Field), "int8")
 		} else {

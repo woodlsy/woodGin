@@ -10,6 +10,7 @@ type Cache interface {
 	Del(key string) bool
 	Expire(key string, ttl int) bool
 	Close() error
+	SetPrefix()
 }
 
 type Instance func() Cache

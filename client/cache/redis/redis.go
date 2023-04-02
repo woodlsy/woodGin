@@ -13,6 +13,7 @@ import (
 
 type Cache struct {
 	redis *redis.Client
+	prefix string
 }
 
 func init() {
@@ -35,13 +36,19 @@ func (c *Cache) Enabled() error {
 	return nil
 }
 
+func (c *Cache) SetPrefix()  {
+	c.prefix = config.Configs.Redis.Prefix
+}
+
 func NewRedisCache() cache.Cache {
 	return &Cache{}
 }
 
 func (c *Cache) Exists(key string) bool {
 	defer c.Close()
-	key = helper.Join("", config.Configs.Redis.Prefix, key)
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
 	v, err := c.redis.Exists(key).Result()
 	if err != nil {
 		log.Logger.Error("【redis】【Exists】key:", key, "error:", err)
@@ -52,7 +59,9 @@ func (c *Cache) Exists(key string) bool {
 
 func (c *Cache) Get(key string) string {
 	defer c.Close()
-	key = helper.Join("", config.Configs.Redis.Prefix, key)
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
 	value, err := c.redis.Get(key).Result()
 	if err != nil {
 		log.Logger.Error("【redis】【Get】key:", key, "value:", value, "error:", err)
@@ -73,7 +82,9 @@ func (c *Cache) Get(key string) string {
 
 func (c *Cache) SetEx(key string, ttl int, value interface{}) bool {
 	defer c.Close()
-	key = helper.Join("", config.Configs.Redis.Prefix, key)
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
 	err := c.redis.Set(key, value, time.Second*time.Duration(ttl)).Err()
 	if err != nil {
 		log.Logger.Error("【redis】【SetEx】key:", key, "value:", value, "ttl:", ttl, "error:", err)
@@ -84,7 +95,9 @@ func (c *Cache) SetEx(key string, ttl int, value interface{}) bool {
 
 func (c *Cache) Del(key string) bool {
 	defer c.Close()
-	key = helper.Join("", config.Configs.Redis.Prefix, key)
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
 	err := c.redis.Del(key).Err()
 	if err != nil {
 		log.Logger.Error("【redis】【Del】key:", key, "error:", err)
@@ -100,7 +113,9 @@ func (c *Cache) Close() error {
 
 func (c *Cache) Expire(key string, ttl int) bool {
 	defer c.Close()
-	key = helper.Join("", config.Configs.Redis.Prefix, key)
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
 	err := c.redis.Expire(key, time.Second*time.Duration(ttl)).Err()
 	if err != nil {
 		log.Logger.Error("【redis】【Expire】key:", key, "ttl:", ttl, "error:", err)
