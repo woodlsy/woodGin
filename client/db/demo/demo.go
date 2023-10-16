@@ -6,15 +6,18 @@ import (
 	"github.com/woodlsy/woodGin/client/db/mysql"
 	"github.com/woodlsy/woodGin/config"
 	"github.com/woodlsy/woodGin/helper"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"html/template"
 	"net/http"
 	"strings"
+	"unicode"
 )
 
-type DbController struct {
+type Table struct {
 }
 
-func (d DbController) TableAttributes(c *gin.Context) {
+func (d Table) TableAttributes(c *gin.Context) {
 	params := struct {
 		Base  string `form:"base"`
 		Table string `form:"table"`
@@ -151,6 +154,8 @@ func getTableAttributes(dbName string, tableName string) (string, gin.H) {
 	columns = helper.Join("", "type ", columns, UderscoreToUpperCamelCase(tableName), " struct {\n")
 
 	for _, item := range result {
+		fieldName := UderscoreToUpperCamelCase(item.Field)
+		fieldType := ""
 		if strings.HasPrefix(item.Type, "varchar") ||
 			strings.HasPrefix(item.Type, "char") ||
 			strings.HasPrefix(item.Type, "timestamp") ||
@@ -159,18 +164,19 @@ func getTableAttributes(dbName string, tableName string) (string, gin.H) {
 			strings.HasPrefix(item.Type, "longtext") ||
 			strings.HasPrefix(item.Type, "date") ||
 			strings.HasPrefix(item.Type, "datetime") {
-			columns = helper.Join(" ", columns, UderscoreToUpperCamelCase(item.Field), "string\n")
-		} else if strings.HasPrefix(item.Type, "int") ||
+			fieldType = "string"
+		} else if strings.HasPrefix(item.Type, "tinyint") ||
+			strings.HasPrefix(item.Type, "int") ||
 			strings.HasPrefix(item.Type, "mediumint") ||
+			strings.HasPrefix(item.Type, "bigint") ||
 			strings.HasPrefix(item.Type, "smallint") {
-			columns = helper.Join(" ", columns, UderscoreToUpperCamelCase(item.Field), "int\n")
+			fieldType = "int64"
 		} else if strings.HasPrefix(item.Type, "decimal") {
-			columns = helper.Join(" ", columns, UderscoreToUpperCamelCase(item.Field), "float64\n")
-		} else if strings.HasPrefix(item.Type, "tinyint") {
-			columns = helper.Join(" ", columns, UderscoreToUpperCamelCase(item.Field), "int8\n")
+			fieldType = "float64"
 		} else {
-			columns = helper.Join(" ", columns, UderscoreToUpperCamelCase(item.Field), item.Type, "\n")
+			fieldType = item.Type
 		}
+		columns = helper.Join(" ", columns, fieldName, fieldType, fmt.Sprintf("`json:\"%s\"`", toLowerCamelCase(fieldName)), "\n")
 	}
 	columns = helper.Join(" ", columns, "}")
 
@@ -188,7 +194,7 @@ func getTableAttributes(dbName string, tableName string) (string, gin.H) {
                 <title>{{ .title }}</title>
 			<style>
 			.main{
-	width:200px;
+	width:600px;
 margin:0 auto;
 margin-top:100px;
 }
@@ -202,7 +208,7 @@ color:green;
 <div class="main">
 <h1>{{.base}}</h1>
                 <p><textarea style="width:600px;height:600px">{{.body}}</textarea></p><br>
-<a href="?" style="color:blue">返回上一层</a>
+<a href="?base={{.dbname}}" style="color:blue">返回上一层</a>
 </div>
             </body>
         </html>
@@ -212,6 +218,17 @@ color:green;
 
 func UderscoreToUpperCamelCase(s string) string {
 	s = strings.Replace(s, "_", " ", -1)
-	s = strings.Title(s)
+	c := cases.Title(language.English)
+	s = c.String(s)
 	return strings.Replace(s, " ", "", -1)
+}
+
+func toLowerCamelCase(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	// 将第一个字母转换为小写
+	runes := []rune(s)
+	runes[0] = unicode.ToLower(runes[0])
+	return string(runes)
 }

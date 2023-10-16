@@ -6,33 +6,30 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 )
 
-//
 // P
 // @Description: 打印输出
 // @param content
-//
 func P(content ...interface{}) {
 	if len(content) == 0 {
 		return
 	}
-	formatContent := "<!---- debug\n"
+	fmt.Println("<!---- debug")
 	for i := 0; i < len(content); i++ {
-		formatContent = Join(" ", formatContent, "%+v")
+		fmt.Printf("%T → %+v\n", content[i], content[i])
 	}
-	formatContent = Join("", formatContent, "\ndebug ----!>\n")
-	fmt.Printf(formatContent, content...)
+	fmt.Println("debug ----!>")
 }
 
-//
 // Join
 // @Description: 拼接字符串
 // @param glue 分隔符
 // @param args
 // @return string
-//
 func Join(glue string, args ...string) string {
 	var build strings.Builder
 	for k, s := range args {
@@ -44,24 +41,20 @@ func Join(glue string, args ...string) string {
 	return build.String()
 }
 
-//
 // Md5
 // @Description: md5 加密
 // @param str
 // @return string
-//
 func Md5(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-//
 // JsonEncode
 // @Description: json编码数据
 // @param data
 // @return string
-//
 func JsonEncode(data interface{}) string {
 	buffer := &bytes.Buffer{}
 	encode := json.NewEncoder(buffer)
@@ -69,6 +62,7 @@ func JsonEncode(data interface{}) string {
 	_ = encode.Encode(data)
 	return string(buffer.Bytes())
 }
+
 // addslashes() 函数返回在预定义字符之前添加反斜杠的字符串。
 // 预定义字符是：
 // 单引号（'）
@@ -101,4 +95,22 @@ func Stripslashes(str string) string {
 		dstRune = append(dstRune, strRune[i])
 	}
 	return string(dstRune)
+}
+
+// GenerateRandomString
+//
+//	@Description: 生成随机字符串
+//	@param length
+//	@return string
+func GenerateRandomString(length int) string {
+
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }

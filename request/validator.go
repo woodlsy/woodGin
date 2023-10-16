@@ -54,14 +54,17 @@ func verify(value reflect.Value) (err error) {
 		tag := field.Tag
 		verifyRules := tag.Get("verify")
 		if verifyRules == "" {
-			continue
+			verifyRules = tag.Get("validate")
+			if verifyRules == "" {
+				continue
+			}
 		}
 		verifyRuleArr := strings.Split(verifyRules, ";")
 		for r := 0; r < len(verifyRuleArr); r++ {
 			if verifyRuleArr[r] == "" {
 				continue
 			}
-			nickName := tag.Get("nickName")
+			nickName := tag.Get("label")
 			if nickName == "" {
 				nickName = field.Name
 			}

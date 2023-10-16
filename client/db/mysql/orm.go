@@ -1,12 +1,12 @@
 package mysql
 
 import (
+	"fmt"
 	"github.com/woodlsy/woodGin/helper"
 	"github.com/woodlsy/woodGin/log"
 	"gorm.io/gorm"
 	"reflect"
 	"strings"
-	"fmt"
 )
 
 type Orm struct {
@@ -39,24 +39,19 @@ func (o *Orm) ChangeConn() *Orm {
 	return o
 }
 
-//
 // Updates
 // @Description: 根据主键ID更新
 // @receiver o
 // @param value
 // @param updateFields
 // @return int64
-//
 func (o Orm) Updates(value interface{}, updateFields []string) int64 {
 	orm := o.Source().Model(value)
-	if len(updateFields) > 0 {
-		orm.Select(updateFields)
-	}
+	orm.Select(updateFields)
 	result := orm.Updates(value)
 	return result.RowsAffected
 }
 
-//
 // UpdatesWhere
 // @Description: 根据条件更新
 // @receiver o
@@ -64,14 +59,18 @@ func (o Orm) Updates(value interface{}, updateFields []string) int64 {
 // @param data
 // @param where
 // @return int64
-//
 func (o Orm) UpdatesWhere(value interface{}, data map[string]interface{}, where map[string]interface{}) int64 {
 	result := o.SqlCondition(value, where, "", 0, 0, "").Updates(data)
 	return result.RowsAffected
 }
 
-func (o Orm) Deleted(value interface{}, where map[string]interface{}) int64 {
+func (o Orm) DeleteWhere(value interface{}, where map[string]interface{}) int64 {
 	result := o.SqlCondition(value, where, "", 0, 0, "").Delete(value)
+	return result.RowsAffected
+}
+
+func (o Orm) Delete(value interface{}) int64 {
+	result := o.Source().Delete(value)
 	return result.RowsAffected
 }
 
@@ -108,7 +107,6 @@ func (o Orm) Transaction() *gorm.DB {
 //	return result.RowsAffected, result.Error
 //}
 
-//
 // sqlCondition
 // @Description: sql 条件组装
 // @param m
@@ -118,7 +116,6 @@ func (o Orm) Transaction() *gorm.DB {
 // @param limit
 // @param fields
 // @return *gorm.DB
-//
 func (o Orm) SqlCondition(m interface{}, where map[string]interface{}, orderBy string, offset int, limit int, fields string) *gorm.DB {
 	tx := o.Source().Model(m)
 
@@ -140,7 +137,7 @@ func (o Orm) SqlCondition(m interface{}, where map[string]interface{}, orderBy s
 	return tx
 }
 
-func  (o *Orm) ParseWhere(tx *gorm.DB,where map[string]interface{}) *gorm.DB {
+func (o *Orm) ParseWhere(tx *gorm.DB, where map[string]interface{}) *gorm.DB {
 	if len(where) > 0 {
 		whereSqlString, whereValueArray := parseWhere(where)
 		if whereSqlString != "" {
@@ -150,9 +147,9 @@ func  (o *Orm) ParseWhere(tx *gorm.DB,where map[string]interface{}) *gorm.DB {
 	return tx
 }
 
-//
 // parseWhere
 // @Description:解析where条件
+//
 //	map[string]interface{}{
 //	"id":        2,                                                    // id =2
 //	"cid":       []interface{}{"in", []int{1, 3}},                                         // cid in (1,2)
@@ -169,10 +166,10 @@ func  (o *Orm) ParseWhere(tx *gorm.DB,where map[string]interface{}) *gorm.DB {
 //	"bid":       []interface{}{"not in", []int{1, 3}},                 // bid not in (1, 2)
 //	},
 //	}
+//
 // @param where
 // @return string
 // @return []interface{}
-//
 func parseWhere(where map[string]interface{}) (string, []interface{}) {
 	var whereSql []string
 	var whereValue []interface{}

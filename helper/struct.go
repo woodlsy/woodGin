@@ -28,7 +28,13 @@ func GetStructField(input interface{}, key string) (value interface{}, err error
 	return val.Interface(), nil
 }
 
-// extractFieldAsMap 函数，接受一个切片结构体和一个字段名作为参数，返回一个以该字段值为下标的 map
+/**
+ * ExtractFieldAsMap
+ * @Description: 接受一个切片结构体和一个字段名作为参数，返回一个以该字段值为下标的 map
+ * @param slice
+ * @param fieldName
+ * @return map[interface{}]interface{}
+ */
 func ExtractFieldAsMap(slice interface{}, fieldName string) map[interface{}]interface{} {
 	// 使用反射获取切片的类型和值
 	sliceValue := reflect.ValueOf(slice)
@@ -55,5 +61,45 @@ func ExtractFieldAsMap(slice interface{}, fieldName string) map[interface{}]inte
 		result[key] = structValue.Interface()
 	}
 
+	return result
+}
+/**
+ * structToMap
+ * @Description: 结构体递归转化为map
+ * @param obj
+ * @return map[string]interface{}
+ */
+func StructToMap(s interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.Struct:
+		for i := 0; i < v.NumField(); i++ {
+			field := v.Field(i)
+			fieldValue := reflect.ValueOf(field.Interface())
+			switch field.Kind() {
+			case reflect.Struct:
+				result[v.Type().Field(i).Name] = StructToMap(field.Interface())
+			case reflect.Slice:
+				if fieldValue.Len() > 0 {
+					if fieldValue.Index(0).Kind() == reflect.Struct {
+						var list []map[string]interface{}
+						for i := 0; i < fieldValue.Len(); i++ {
+							list = append(list, StructToMap(fieldValue.Index(i).Interface()))
+						}
+						result[v.Type().Field(i).Name] = list
+					} else {
+						result[v.Type().Field(i).Name] = fieldValue.Interface()
+					}
+				}
+			default:
+				result[v.Type().Field(i).Name] = fieldValue.Interface()
+			}
+		}
+	}
 	return result
 }

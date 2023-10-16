@@ -4,18 +4,19 @@ import (
 	"reflect"
 )
 
-//
 // GetValueArray
 // @Description: 从data中提取key的值组成数组
 // @param data
 // @param fieldName
 // @return []interface{}
-//
 func GetValueArray(data interface{}, fieldNames ...string) []interface{} {
 	var fieldValueArr []interface{}
-	switch reflect.TypeOf(data).Kind() {
+	v := reflect.ValueOf(data)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	switch v.Kind() {
 	case reflect.Slice:
-		v := reflect.ValueOf(data)
 		for i := 0; i < v.Len(); i++ {
 			ele := v.Index(i).Interface()
 			tmpIdArr := GetValueArray(ele, fieldNames...)
@@ -39,12 +40,10 @@ func GetValueArray(data interface{}, fieldNames ...string) []interface{} {
 	return fieldValueArr
 }
 
-//
 // ArrayUniqueString
 // @Description:sting数组去重
 // @param arr
 // @return []string
-//
 func ArrayUniqueString(arr []interface{}) []string {
 	var result []string
 	tempMap := map[string]byte{} // 存放不重复主键
@@ -58,12 +57,27 @@ func ArrayUniqueString(arr []interface{}) []string {
 	return result
 }
 
-//
+// ArrayUnique
+// @Description: 数组去重
+// @param arr
+// @return []string
+func ArrayUnique(arr []interface{}) []any {
+	var result []any
+	tempMap := map[any]byte{} // 存放不重复主键
+	for _, value := range arr {
+		l := len(tempMap)
+		tempMap[value] = 0
+		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
+			result = append(result, value)
+		}
+	}
+	return result
+}
+
 // ArrayUniqueInt
 // @Description: int数组去重
 // @param arr
 // @return []string
-//
 func ArrayUniqueInt(arr []interface{}) []int {
 	var result []int
 	tempMap := map[int]byte{} // 存放不重复主键
@@ -77,14 +91,63 @@ func ArrayUniqueInt(arr []interface{}) []int {
 	return result
 }
 
-//
+// ArrayUniqueInt
+// @Description: int数组去重
+// @param arr
+// @return []string
+func ArrayUniqueInt64(arr []interface{}) []int64 {
+	var result []int64
+	tempMap := map[int64]byte{} // 存放不重复主键
+	for _, value := range arr {
+		l := len(tempMap)
+		tempMap[value.(int64)] = 0
+		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
+			result = append(result, value.(int64))
+		}
+	}
+	return result
+}
+
+// ArrayUniqueInt
+// @Description: int数组去重
+// @param arr
+// @return []string
+func ArrayUniqueFloat64ToInt(arr []interface{}) []int {
+	var result []int
+	tempMap := map[float64]byte{} // 存放不重复主键
+	for _, value := range arr {
+		l := len(tempMap)
+		tempMap[value.(float64)] = 0
+		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
+			result = append(result, int(value.(float64)))
+		}
+	}
+	return result
+}
+
+// ArrayUniqueInt
+// @Description: int数组去重
+// @param arr
+// @return []string
+func ArrayUniqueFloat64(arr []interface{}) []float64 {
+	var result []float64
+	tempMap := map[float64]byte{} // 存放不重复主键
+	for _, value := range arr {
+		l := len(tempMap)
+		tempMap[value.(float64)] = 0
+		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
+			result = append(result, value.(float64))
+		}
+	}
+	return result
+}
+
 // GetPairs
 // @Description: 返回键值对数组
 // @param arr
 // @param keyFieldName
 // @param valueFieldName
 // @return map[interface{}]interface{}
-//
 func GetPairs(arr interface{}, keyFieldName string, valueFieldName string) map[interface{}]interface{} {
 	data := make(map[interface{}]interface{})
 	rType := reflect.TypeOf(arr)
