@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"regexp"
 )
 
 //
@@ -68,11 +69,16 @@ func verify(value reflect.Value) (err error) {
 			if nickName == "" {
 				nickName = field.Name
 			}
-			if verifyRuleArr[r] == "required" {
+			switch verifyRuleArr[r] {
+			case "required":
 				if isEmpty(value.Field(i)) {
 					return errors.New(nickName + "值不能为空")
 				}
-			} else {
+			case "mobile":
+				if !CheckMobile(value.Field(i)) {
+					return errors.New(nickName + "验证失败")
+				}
+			default:
 				if !compareVerify(value.Field(i), verifyRuleArr[r]) {
 					return errors.New(nickName + "长度或值不在合法范围")
 				}
@@ -201,4 +207,15 @@ func compare(value interface{}, VerifyStr string) bool {
 	default:
 		return false
 	}
+}
+
+// CheckMobile
+// @Description: 验证手机号
+// @param f
+// @return bool
+func CheckMobile(value reflect.Value) bool {
+	// 定义手机号的正则表达式
+	regex := `^1[3456789]\d{9}$`
+	match, _ := regexp.MatchString(regex, value.String())
+	return match
 }
