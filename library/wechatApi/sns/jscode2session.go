@@ -1,8 +1,6 @@
 package sns
 
-import (
-	"github.com/woodlsy/woodGin/wechat"
-)
+import "github.com/woodlsy/woodGin/library/wechatApi"
 
 type ResultJsCode2Session struct {
 	Errcode    int    `json:"errcode"`
@@ -13,7 +11,7 @@ type ResultJsCode2Session struct {
 }
 
 func JsCode2Session(appId string, secret string, code string) ResultJsCode2Session {
-	req := wechat.Request{
+	req := wechatApi.Request{
 		AppId:       appId,
 		Secret:      secret,
 		Url:         "sns/jscode2session",

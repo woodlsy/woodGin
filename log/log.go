@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 )
 
@@ -109,11 +110,9 @@ func getConsoleEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-//
 // getEncoder
 // @Description: 日志格式编码
 // @return zapcore.EncoderConfig
-//
 func getEncoder() zapcore.EncoderConfig {
 	//encoderConfig := zap.NewProductionEncoderConfig()
 	//encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
@@ -143,11 +142,9 @@ func cEncodeCaller(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder
 	enc.AppendString("[" + caller.TrimmedPath() + "]")
 }
 
-//
 // GinLogger
 // @Description: gin的日志注入
 // @return gin.HandlerFunc
-//
 func GinLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -171,4 +168,11 @@ func GinLogger() gin.HandlerFunc {
 
 func customTimeEncoder(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
 	encoder.AppendString(t.Format("2006-01-02 15:04:05.000"))
+}
+
+func StackTrace(msg interface{}) {
+	var buf [4096]byte
+	n := runtime.Stack(buf[:], false)
+	Logger.Error(msg)
+	Logger.Error(string(buf[:n]))
 }

@@ -1,4 +1,4 @@
-package wechat
+package wechatApi
 
 import (
 	"encoding/json"
@@ -21,7 +21,7 @@ func (r Request) Get(result interface{}) {
 		panic("未配置请求地址")
 	}
 
-	tmpFields := []string{
+	tmpFields := []interface{}{
 		helper.Join("=", "appid", r.AppId),
 		helper.Join("=", "secret", r.Secret),
 	}
