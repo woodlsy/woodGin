@@ -33,6 +33,9 @@ func (r *Request) Get(url string) string {
 }
 
 func (r *Request) Post(url string) string {
+	if len(r.Data) > 0 {
+		r.RequestBody  = bytes.NewBuffer([]byte(helper.JsonEncode(r.Data)))
+	}
 	return r.FetchString(url, "POST")
 }
 
@@ -98,6 +101,11 @@ func (r *Request) SetHeader(key string, value string) *Request {
 	return r
 }
 
+func (r *Request) HeaderJson() *Request {
+	r.Header.Set("Content-Type", "application/json")
+	return r
+}
+
 func (r *Request) FetchString(url string, method string) string {
 	_, err := r.NewRequest(url, method)
 	if err == nil {
@@ -146,11 +154,6 @@ func (r *Request) NewRequest(url string, method string) (*Request, error) {
 	r.Url = url
 	var err error
 	method = strings.ToUpper(method)
-
-	if r.RequestBody == nil {
-		r.RequestBody = nil
-	}
-
 	if r.RequestBody == nil {
 		r.Request, err = http.NewRequest(method, url, nil)
 	} else {

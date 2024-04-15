@@ -8,6 +8,8 @@ type Cache interface {
 	Get(key string) string
 	SetEx(key string, ttl int, value interface{}) bool
 	Del(key string) bool
+	Incr(key string) int64
+	Decr(key string) int64
 	Expire(key string, ttl int) bool
 	Close() error
 	SetPrefix()

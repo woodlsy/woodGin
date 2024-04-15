@@ -162,6 +162,7 @@ func getTableAttributes(dbName string, tableName string) (string, gin.H) {
 			strings.HasPrefix(item.Type, "text") ||
 			strings.HasPrefix(item.Type, "mediumtext") ||
 			strings.HasPrefix(item.Type, "longtext") ||
+			strings.HasPrefix(item.Type, "enum") ||
 			strings.HasPrefix(item.Type, "date") ||
 			strings.HasPrefix(item.Type, "datetime") {
 			fieldType = "string"

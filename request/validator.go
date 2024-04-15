@@ -15,6 +15,7 @@ import (
 //				required 必填，字符串不能为空，数字不能为0
 //				lt 小于；le 小于等于；eq 等于；ne 不等于；ge 大于等于；gt 大于
 //              当值是字符串时，验证的是长度；当值是数字类型时，验证的是大小；
+//				mobile 验证手机号
 // @param data
 // @return err
 //
@@ -75,7 +76,7 @@ func verify(value reflect.Value) (err error) {
 					return errors.New(nickName + "值不能为空")
 				}
 			case "mobile":
-				if !CheckMobile(value.Field(i)) {
+				if !VerifyMobile(value.Field(i)) {
 					return errors.New(nickName + "验证失败")
 				}
 			default:
@@ -209,13 +210,49 @@ func compare(value interface{}, VerifyStr string) bool {
 	}
 }
 
-// CheckMobile
+// VerifyMobile
 // @Description: 验证手机号
 // @param f
 // @return bool
-func CheckMobile(value reflect.Value) bool {
+func VerifyMobile(value reflect.Value) bool {
 	// 定义手机号的正则表达式
 	regex := `^1[3456789]\d{9}$`
 	match, _ := regexp.MatchString(regex, value.String())
 	return match
+}
+
+func VerifyIdCard(value reflect.Value) bool {
+	id := value.String()
+	// 身份证号码格式正则表达式
+	regex := `^\d{17}[\dXx]$`
+
+	// 验证身份证号码格式
+	match, _ := regexp.MatchString(regex, id)
+	if !match {
+		return false
+	}
+
+	// 将身份证号码中的年月日提取出来
+	year, _ := strconv.Atoi(id[6:10])
+	month, _ := strconv.Atoi(id[10:12])
+	day, _ := strconv.Atoi(id[12:14])
+
+	// 验证年月日的有效性
+	if year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1 || day > 31 {
+		return false
+	}
+
+	// 验证校验码
+	factor := []int{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2}
+	code := []byte("10X98765432")
+	sum := 0
+	for i := 0; i < 17; i++ {
+		num, _ := strconv.Atoi(string(id[i]))
+		sum += num * factor[i]
+	}
+	if strings.ToUpper(string(id[17])) != string(code[sum%11]) {
+		return false
+	}
+
+	return true
 }

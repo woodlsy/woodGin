@@ -17,6 +17,10 @@ import (
 func GetStructField(input interface{}, key string) (value interface{}, err error) {
 	rv := reflect.ValueOf(input)
 	rt := reflect.TypeOf(input)
+	if rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+		rt = rv.Type()
+	}
 	if rt.Kind() != reflect.Struct {
 		return value, errors.New("input must be struct")
 	}

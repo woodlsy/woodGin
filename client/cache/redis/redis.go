@@ -12,7 +12,7 @@ import (
 )
 
 type Cache struct {
-	redis *redis.Client
+	redis  *redis.Client
 	prefix string
 }
 
@@ -36,7 +36,7 @@ func (c *Cache) Enabled() error {
 	return nil
 }
 
-func (c *Cache) SetPrefix()  {
+func (c *Cache) SetPrefix() {
 	c.prefix = config.Configs.Redis.Prefix
 }
 
@@ -122,4 +122,28 @@ func (c *Cache) Expire(key string, ttl int) bool {
 		return false
 	}
 	return true
+}
+
+func (c *Cache) Incr(key string) int64 {
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
+	value, err := c.redis.Incr(key).Result()
+	if err != nil {
+		log.Logger.Error("【redis】【Incr】key:", key, "error:", err)
+		return 0
+	}
+	return value
+}
+
+func (c *Cache) Decr(key string) int64 {
+	if c.prefix != "" {
+		key = helper.Join("", c.prefix, key)
+	}
+	value, err := c.redis.Decr(key).Result()
+	if err != nil {
+		log.Logger.Error("【redis】【decr】key:", key, "error:", err)
+		return 0
+	}
+	return value
 }

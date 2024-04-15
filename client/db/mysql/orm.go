@@ -74,11 +74,12 @@ func (o Orm) Delete(value interface{}) int64 {
 	return result.RowsAffected
 }
 
-func (o Orm) Insert(value interface{}) {
+func (o Orm) Insert(value interface{}) int64 {
 	result := o.Source().Create(value)
 	if result.Error != nil || result.RowsAffected == 0 {
 		log.Logger.Error("新增记录失败", value, result.Error)
 	}
+	return result.RowsAffected
 }
 
 func (o Orm) Source() *gorm.DB {

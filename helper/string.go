@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"reflect"
 )
 
 // P
@@ -20,7 +21,13 @@ func P(content ...interface{}) {
 	}
 	fmt.Println("<!---- debug")
 	for i := 0; i < len(content); i++ {
-		fmt.Printf("%T → %+v\n", content[i], content[i])
+		val := reflect.ValueOf(content[i])
+		if val.Kind() == reflect.Ptr && !val.IsNil()  {
+			elemVal := val.Elem()
+			fmt.Printf("%T → %+v\n", content[i], elemVal.Interface())
+		}else {
+			fmt.Printf("%T → %+v\n", content[i], content[i])
+		}
 	}
 	fmt.Println("debug ----!>")
 }
@@ -30,9 +37,10 @@ func P(content ...interface{}) {
 // @param glue 分隔符
 // @param args
 // @return string
-func Join(glue string, args ...string) string {
+func Join(glue string, args ...interface{}) string {
 	var build strings.Builder
-	for k, s := range args {
+	for k, arg := range args {
+		s := fmt.Sprintf("%v", arg) // 将参数转换为字符串
 		if k != 0 {
 			build.WriteString(glue)
 		}

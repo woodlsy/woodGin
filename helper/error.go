@@ -2,7 +2,7 @@ package helper
 
 type Error struct {
 	Code    int `json:"code"`
-	Message string `json:"message"`
+	Msg string `json:"msg"`
 }
 
 var (
