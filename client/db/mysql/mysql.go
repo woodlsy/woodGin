@@ -39,10 +39,10 @@ func openDb(databases config.Databases) *gorm.DB {
 		databases.Charset,
 	)
 
-	dbLogger := log.NewDbLogger(ormLogger.Info, log.Config{
-		SlowThreshold:             time.Second, // 慢 SQL 阈值
-		IgnoreRecordNotFoundError: true,        // 忽略ErrRecordNotFound（记录未找到）错误
-		Colorful:                  false,       // 禁用彩色打印
+	dbLogger := log.NewDbLogger(ormLogger.Warn, log.Config{
+		SlowSqlThreshold:          config.Configs.App.SlowSqlThreshold, // 慢 SQL 阈值
+		IgnoreRecordNotFoundError: true,                                // 忽略ErrRecordNotFound（记录未找到）错误
+		Colorful:                  false,                               // 禁用彩色打印
 	})
 
 	con, err := gorm.Open(mysql.New(mysql.Config{
@@ -58,7 +58,7 @@ func openDb(databases config.Databases) *gorm.DB {
 	})
 
 	if err != nil {
-		log.Logger.Error("数据库", databases.Dbname, "连接失败", err, dsn)
+		log.Logger.Errorln("数据库", databases.Dbname, "连接失败", err, dsn)
 		panic("数据库链接失败")
 	}
 	sqlDB, err := con.DB()

@@ -13,7 +13,7 @@ import (
 type Int ormLogger.Interface
 
 type Config struct {
-	SlowThreshold             time.Duration
+	SlowSqlThreshold          int64 // 慢 SQL 阈值，单位：毫秒
 	Colorful                  bool
 	IgnoreRecordNotFoundError bool
 	LogLevel                  ormLogger.LogLevel
@@ -102,8 +102,8 @@ func (l DbLogger) Trace(ctx context.Context, begin time.Time, fc func() (string,
 		} else {
 			Logger.Errorf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		}
-	case elapsed > l.SlowThreshold && l.SlowThreshold != 0 && l.LogLevel >= ormLogger.Warn:
-		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.SlowThreshold)
+	case l.SlowSqlThreshold != 0 && elapsed.Milliseconds() > l.SlowSqlThreshold && l.LogLevel >= ormLogger.Warn:
+		slowLog := fmt.Sprintf("SLOW SQL > %vms", l.SlowSqlThreshold)
 		if rows == -1 {
 			Logger.Warnf(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 		} else {

@@ -37,7 +37,6 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 					// If the connection is dead, we can't write a status to it.
 					_ = c.Error(err.(error)) // nolint: errcheck
 					c.Abort()
-					return
 				}
 
 				if stack {
@@ -54,6 +53,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 					)
 				}
 				c.JSON(http.StatusOK, helper.ErrorSystem)
+				c.Abort()
 			}
 		}()
 		c.Next()
