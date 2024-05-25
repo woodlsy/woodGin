@@ -2,6 +2,7 @@ package helper
 
 import (
 	"reflect"
+	"fmt"
 )
 
 // GetValueArray
@@ -162,12 +163,14 @@ func GetPairs(arr interface{}, keyFieldName string, valueFieldName string) map[i
 		if reflect.TypeOf(rValue.Index(i)).Kind() == reflect.Struct {
 			k, err := GetStructField(rValue.Index(i).Interface(), keyFieldName)
 			if err != nil {
+				fmt.Println("提取键值对数组失败keyFieldName:", keyFieldName, err)
 				//log.Logger.Error("提取键值对数组失败", keyFieldName, err)
 				//log.Logger.Error(arr)
 				break
 			}
 			v, err := GetStructField(rValue.Index(i).Interface(), valueFieldName)
 			if err != nil {
+				fmt.Println("提取键值对数组失败valueFieldName:", valueFieldName, err)
 				//log.Logger.Error("提取键值对数组失败", valueFieldName, err)
 				//log.Logger.Error(arr)
 				break

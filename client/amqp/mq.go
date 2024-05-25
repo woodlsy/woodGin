@@ -31,7 +31,7 @@ func Enabled(mode ...string) {
 // @param content
 // @return error
 //
-func (a Amqp) PushSub(exchange string, queue string, routeKey string, content map[string]interface{}) error {
+func (a Amqp) PushSub(exchange string, queue string, routeKey string, content string) error {
 	switch Mq.mode {
 	case "rabbit":
 		return rabbit.PushSub(a.Url, exchange, queue, routeKey, content)

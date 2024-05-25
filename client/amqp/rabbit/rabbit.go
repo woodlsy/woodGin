@@ -39,7 +39,7 @@ func InitUri() string {
 // @param content
 // @return error
 //
-func PushSub(url, exchange string, queue string, routeKey string, content map[string]interface{}) error {
+func PushSub(url, exchange string, queue string, routeKey string, content string) error {
 	if url == "" {
 		errMsg := "未配置rabbitMq配置"
 		log.Logger.Error(errMsg)
@@ -91,7 +91,7 @@ func PushSub(url, exchange string, queue string, routeKey string, content map[st
 	channel.QueueBind(queue, routeKey, exchange, false, nil)
 
 	// 发送
-	messageBody := helper.JsonEncode(content)
+	messageBody := content
 	if err = channel.Publish(
 		exchange, // exchange
 		routeKey, // routing key
