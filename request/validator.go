@@ -3,22 +3,23 @@ package request
 import (
 	"errors"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
-	"regexp"
+	"unicode/utf8"
 )
 
-//
 // Validator
 // @Description: 通过tag验证字段合法性
-//             ` verify:"required;lt=2" `
-//				required 必填，字符串不能为空，数字不能为0
-//				lt 小于；le 小于等于；eq 等于；ne 不等于；ge 大于等于；gt 大于
-//              当值是字符串时，验证的是长度；当值是数字类型时，验证的是大小；
-//				mobile 验证手机号
+//
+//	            ` verify:"required;lt=2" `
+//					required 必填，字符串不能为空，数字不能为0
+//					lt 小于；le 小于等于；eq 等于；ne 不等于；ge 大于等于；gt 大于
+//	             当值是字符串时，验证的是长度；当值是数字类型时，验证的是大小；
+//					mobile 验证手机号
+//
 // @param data
 // @return err
-//
 func Validator(data interface{}) (err error) {
 	//compareMap := map[string]bool{
 	//	"lt": true,
@@ -36,12 +37,10 @@ func Validator(data interface{}) (err error) {
 
 }
 
-//
 // verify
 // @Description: 递归验证
 // @param value
 // @return err
-//
 func verify(value reflect.Value) (err error) {
 	num := value.NumField()
 	for i := 0; i < num; i++ {
@@ -89,14 +88,16 @@ func verify(value reflect.Value) (err error) {
 	return nil
 }
 
-//@function: compareVerify
-//@description: 长度和数字的校验方法 根据类型自动校验
-//@param: value reflect.Value, VerifyStr string
-//@return: bool
+// @function: compareVerify
+// @description: 长度和数字的校验方法 根据类型自动校验
+// @param: value reflect.Value, VerifyStr string
+// @return: bool
 func compareVerify(value reflect.Value, VerifyStr string) bool {
 
 	switch value.Kind() {
-	case reflect.String, reflect.Slice, reflect.Array:
+	case reflect.String:
+		return compare(utf8.RuneCountInString(value.String()), VerifyStr)
+	case reflect.Slice, reflect.Array:
 		return compare(value.Len(), VerifyStr)
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		return compare(value.Uint(), VerifyStr)
