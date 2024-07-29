@@ -1,8 +1,8 @@
 package helper
 
 import (
-	"reflect"
 	"fmt"
+	"reflect"
 )
 
 // GetValueArray
@@ -45,10 +45,13 @@ func GetValueArray(data interface{}, fieldNames ...string) []interface{} {
 // @Description:sting数组去重
 // @param arr
 // @return []string
-func ArrayUniqueString(arr []interface{}) []string {
+func ArrayUniqueString(arr []interface{}, filterEmpty bool) []string {
 	var result []string
 	tempMap := map[string]byte{} // 存放不重复主键
 	for _, value := range arr {
+		if filterEmpty && value == "" {
+			continue
+		}
 		l := len(tempMap)
 		tempMap[value.(string)] = 0
 		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
@@ -154,8 +157,8 @@ func GetPairs(arr interface{}, keyFieldName string, valueFieldName string) map[i
 	rType := reflect.TypeOf(arr)
 	if rType.Kind() != reflect.Slice {
 
-		//log.Logger.Error("ShowPairs 函数失败，arr不是Slice类型", rType.Kind())
-		//log.Logger.Error(arr)
+		// log.Logger.Error("ShowPairs 函数失败，arr不是Slice类型", rType.Kind())
+		// log.Logger.Error(arr)
 		return data
 	}
 	rValue := reflect.ValueOf(arr)
@@ -164,15 +167,15 @@ func GetPairs(arr interface{}, keyFieldName string, valueFieldName string) map[i
 			k, err := GetStructField(rValue.Index(i).Interface(), keyFieldName)
 			if err != nil {
 				fmt.Println("提取键值对数组失败keyFieldName:", keyFieldName, err)
-				//log.Logger.Error("提取键值对数组失败", keyFieldName, err)
-				//log.Logger.Error(arr)
+				// log.Logger.Error("提取键值对数组失败", keyFieldName, err)
+				// log.Logger.Error(arr)
 				break
 			}
 			v, err := GetStructField(rValue.Index(i).Interface(), valueFieldName)
 			if err != nil {
 				fmt.Println("提取键值对数组失败valueFieldName:", valueFieldName, err)
-				//log.Logger.Error("提取键值对数组失败", valueFieldName, err)
-				//log.Logger.Error(arr)
+				// log.Logger.Error("提取键值对数组失败", valueFieldName, err)
+				// log.Logger.Error(arr)
 				break
 			}
 			data[k] = v
