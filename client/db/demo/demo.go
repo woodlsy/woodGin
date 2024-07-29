@@ -2,16 +2,18 @@ package demo
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/woodlsy/woodGin/client/db/mysql"
-	"github.com/woodlsy/woodGin/config"
-	"github.com/woodlsy/woodGin/helper"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"html/template"
 	"net/http"
 	"strings"
 	"unicode"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
+	"github.com/woodlsy/woodGin/client/db/mysql"
+	"github.com/woodlsy/woodGin/config"
+	"github.com/woodlsy/woodGin/helper"
 )
 
 type Table struct {
@@ -135,7 +137,7 @@ color:green;
 type tableAttribute struct {
 	Collation string // 编码
 	Comment   string // 备注
-	//Default    interface{} // 默认值
+	// Default    interface{} // 默认值
 	Extra      string // auto_increment
 	Field      string
 	Key        string // PRI
@@ -148,7 +150,7 @@ func getTableAttributes(dbName string, tableName string) (string, gin.H) {
 	var orm mysql.Orm
 	orm.DatabaseName = dbName
 	result := make([]tableAttribute, 0)
-	orm.Source().Raw(fmt.Sprintf("SHOW FULL COLUMNS FROM %s", tableName)).Scan(&result)
+	orm.Source().Raw(fmt.Sprintf("SHOW FULL COLUMNS FROM `%s`", tableName)).Scan(&result)
 	columns := ""
 
 	columns = helper.Join("", "type ", columns, UderscoreToUpperCamelCase(tableName), " struct {\n")
