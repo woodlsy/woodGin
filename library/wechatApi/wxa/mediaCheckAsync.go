@@ -10,13 +10,23 @@ type MediaCheckAsyncResult struct {
 	TraceId string `json:"trace_id"`
 }
 
-func MediaCheckAsync(accessToken string, url string, urlType int, openId string) MediaCheckAsyncResult {
+func MediaCheckAsync(accessToken string, version int, url string, urlType int, openId string) MediaCheckAsyncResult {
+	customData := map[string]interface{}{}
+	if version == 2 {
+		customData["version"] = 2
+		customData["scene"] = 4
+		customData["openid"] = openId
+		customData["media_url"] = url
+		customData["media_type"] = urlType
+	} else {
+		customData["media"] = url
+	}
 	req := wechatApi.Request{
-		Url:         "wxa/media_check_async",
+		Url:         "wxa/img_sec_check",
 		CustomQuery: map[string]string{"access_token": accessToken},
-		CustomData:  map[string]interface{}{"version": 2, "media_url": url, "media_type": urlType, "scene": 4, "openid": openId},
+		CustomData:  customData,
 	}
 	var result MediaCheckAsyncResult
-	req.Post(&result)
+	req.PostLocalFile(&result, url, "media")
 	return result
 }

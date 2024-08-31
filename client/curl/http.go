@@ -3,8 +3,6 @@ package curl
 import (
 	"bytes"
 	"fmt"
-	"github.com/woodlsy/woodGin/helper"
-	"github.com/woodlsy/woodGin/log"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -12,6 +10,9 @@ import (
 	"net/textproto"
 	"os"
 	"strings"
+
+	"github.com/woodlsy/woodGin/helper"
+	"github.com/woodlsy/woodGin/log"
 )
 
 type Request struct {
@@ -34,12 +35,12 @@ func (r *Request) Get(url string) string {
 
 func (r *Request) Post(url string) string {
 	if len(r.Data) > 0 {
-		r.RequestBody  = bytes.NewBuffer([]byte(helper.JsonEncode(r.Data)))
+		r.RequestBody = bytes.NewBuffer([]byte(helper.JsonEncode(r.Data)))
 	}
 	return r.FetchString(url, "POST")
 }
 
-func (r *Request) PostLocalFile(url string, filePath string) string {
+func (r *Request) PostLocalFile(url string, filePath string, fieldName string) string {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Logger.Error("待上传文件打不开", filePath)
@@ -50,10 +51,10 @@ func (r *Request) PostLocalFile(url string, filePath string) string {
 
 	writer := multipart.NewWriter(body)
 
-	//for key, val := range r.Data {
+	// for key, val := range r.Data {
 	//	_ = writer.WriteField(key, val)
-	//}
-	formFile, err := r.createFormFile(writer, "file", filePath)
+	// }
+	formFile, err := r.createFormFile(writer, fieldName, filePath)
 	if err != nil {
 		log.Logger.Error("CreateFormFile err: %v, file: %s", err, file)
 		return ""
@@ -69,7 +70,6 @@ func (r *Request) PostLocalFile(url string, filePath string) string {
 	return r.FetchString(url, "POST")
 }
 
-//
 // createFormFile
 // @Description: 重新writer.CreateFormFile
 // @receiver r
@@ -79,7 +79,6 @@ func (r *Request) PostLocalFile(url string, filePath string) string {
 // @param filePath
 // @return io.Writer
 // @return error
-//
 func (r *Request) createFormFile(writer *multipart.Writer, filedName string, filePath string) (io.Writer, error) {
 	h := make(textproto.MIMEHeader)
 	h.Set("Content-Disposition",
@@ -114,13 +113,11 @@ func (r *Request) FetchString(url string, method string) string {
 	return string(r.Body)
 }
 
-//
 // Fetch
 // @Description: 执行请求
 // @receiver r
 // @return *Request
 // @return error
-//
 func (r *Request) Fetch() (*Request, error) {
 	var err error
 	var client http.Client
@@ -141,7 +138,6 @@ func (r *Request) Fetch() (*Request, error) {
 	return r, nil
 }
 
-//
 // NewRequest
 // @Description: 配置请求
 // @receiver r
@@ -149,7 +145,6 @@ func (r *Request) Fetch() (*Request, error) {
 // @param method
 // @return *Request
 // @return error
-//
 func (r *Request) NewRequest(url string, method string) (*Request, error) {
 	r.Url = url
 	var err error

@@ -13,11 +13,17 @@ type MsgSecCheckResult struct {
 	} `json:"result"`
 }
 
-func MsgSecCheck(accessToken string, content string, openId string) MsgSecCheckResult {
+func MsgSecCheck(accessToken string, version int, content string, openId string) MsgSecCheckResult {
+	customData := map[string]interface{}{"content": content}
+	if version == 2 {
+		customData["version"] = 2
+		customData["scene"] = 4
+		customData["openid"] = openId
+	}
 	req := wechatApi.Request{
 		Url:         "wxa/msg_sec_check",
 		CustomQuery: map[string]string{"access_token": accessToken},
-		CustomData:  map[string]interface{}{"version": 2, "content": content, "scene": 4, "openid": openId},
+		CustomData:  customData,
 	}
 	var result MsgSecCheckResult
 	req.Post(&result)
