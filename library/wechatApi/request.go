@@ -48,7 +48,7 @@ func (r *Request) Get(result interface{}) {
 	}
 }
 
-func (r *Request) Post(result interface{}) {
+func (r *Request) Post(result interface{}) string {
 	if r.Url == "" {
 		panic("未配置请求地址")
 	}
@@ -62,18 +62,21 @@ func (r *Request) Post(result interface{}) {
 	resp := request.Post(u)
 	fmt.Println("url POST:", u)
 	fmt.Println("请求报文:", helper.JsonEncode(r.CustomData))
-	fmt.Println("result:", resp)
+
 	if resp == "" {
 		fmt.Println("请求", u, "失败")
-		return
+		return ""
 	}
-
-	err := json.Unmarshal(request.Body, &result)
-	if err != nil {
-		fmt.Println(helper.Join("", domain, r.Url))
-		fmt.Println(err)
-		return
+	if result != nil {
+		fmt.Println("result:", resp)
+		err := json.Unmarshal(request.Body, &result)
+		if err != nil {
+			fmt.Println(helper.Join("", domain, r.Url))
+			fmt.Println(err)
+			return ""
+		}
 	}
+	return string(request.Body)
 }
 
 func (r *Request) PostLocalFile(result interface{}, fileUrl string, fileName string) {
