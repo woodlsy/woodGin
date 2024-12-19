@@ -32,7 +32,7 @@ func (c *Cache) Enabled() error {
 		errMsg := "failed to init redis"
 		return errors.New(errMsg)
 	}
-	fmt.Println("redis 连接成功")
+	fmt.Println(helper.Now(), "redis 连接成功")
 	return nil
 }
 

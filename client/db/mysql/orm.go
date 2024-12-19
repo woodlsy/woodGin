@@ -151,22 +151,23 @@ func (o *Orm) ParseWhere(tx *gorm.DB, where map[string]interface{}) *gorm.DB {
 // parseWhere
 // @Description:解析where条件
 //
-//	map[string]interface{}{
-//	"id":        2,                                                    // id =2
-//	"cid":       []interface{}{"in", []int{1, 3}},                                         // cid in (1,2)
-//	"pid":       []interface{}{"!=", 3},                               // pid != 3
-//	"name":      []interface{}{"like", "%%大三%%"},                      // name like '%大三%'
-//	"create_at": []interface{}{"between", "2022-08-01", "2022-08-02"}, // create_at between '2022-08-01' and '2022-08-02'
-//	"bid":       []interface{}{"not in", []int{1, 2}},                 // bid not in (1, 2)
-//	"or": map[string]interface{}{ // or链接
-//	"id":        1,                                                    // id =2
-//	"cid":       []interface{}{"in", []int{1, 3}},                                         // cid in (1,2)
-//	"pid":       []interface{}{"!=", 4},                               // pid != 3
-//	"name":      []interface{}{"like", "%%大三2%%"},                     // name like '%大三%'
-//	"create_at": []interface{}{"between", "2022-08-03", "2022-08-04"}, // create_at between '2022-08-01' and '2022-08-02'
-//	"bid":       []interface{}{"not in", []int{1, 3}},                 // bid not in (1, 2)
-//	},
-//	}
+//		map[string]interface{}{
+//		"id":        2,                                                    // id =2
+//		"cid":       []interface{}{"in", []int{1, 3}},                                         // cid in (1,2)
+//		"pid":       []interface{}{"!=", 3},                               // pid != 3
+//		"name":      []interface{}{"like", "%%大三%%"},                      // name like '%大三%'
+//		"create_at": []interface{}{"between", "2022-08-01", "2022-08-02"}, // create_at between '2022-08-01' and '2022-08-02'
+//		"bid":       []interface{}{"not in", []int{1, 2}},                 // bid not in (1, 2)
+//		"or": map[string]interface{}{ // or链接
+//		"id":        1,                                                    // id =2
+//		"cid":       []interface{}{"in", []int{1, 3}},                                         // cid in (1,2)
+//		"pid":       []interface{}{"!=", 4},                               // pid != 3
+//		"name":      []interface{}{"like", "%%大三2%%"},                     // name like '%大三%'
+//		"create_at": []interface{}{"between", "2022-08-03", "2022-08-04"}, // create_at between '2022-08-01' and '2022-08-02'
+//		"bid":       []interface{}{"not in", []int{1, 3}},                 // bid not in (1, 2)
+//	 "deleted_at": []interface{}{"_sql", "ISNULL(deleted_at)"}, // ISNULL(deleted_at)
+//		},
+//		}
 //
 // @param where
 // @return string
@@ -189,6 +190,8 @@ func parseWhere(where map[string]interface{}) (string, []interface{}) {
 				case "between":
 					whereSql = append(whereSql, helper.Join(" ", key, vv[0].(string), "?", "and", "?"))
 					whereValue = append(whereValue, vv[1], vv[2])
+				case "_sql":
+					whereSql = append(whereSql, vv[1].(string))
 				}
 			default:
 				whereSql = append(whereSql, helper.Join(" ", key, "=", "?"))

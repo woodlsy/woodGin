@@ -29,7 +29,6 @@ func InitUri() string {
 	)
 }
 
-//
 // PushSub
 // @Description:订阅模式生产端
 // @param url
@@ -38,7 +37,6 @@ func InitUri() string {
 // @param routeKey
 // @param content
 // @return error
-//
 func PushSub(url, exchange string, queue string, routeKey string, content string) error {
 	if url == "" {
 		errMsg := "未配置rabbitMq配置"
@@ -111,7 +109,6 @@ func PushSub(url, exchange string, queue string, routeKey string, content string
 	return nil
 }
 
-//
 // Consumer
 // @Description: TODO 待完善 消费者
 // @param url
@@ -119,7 +116,6 @@ func PushSub(url, exchange string, queue string, routeKey string, content string
 // @param queue
 // @param routeKey
 // @return error
-//
 func Consumer(url string, exchange string, queue string, routeKey string) error {
 	// 建立连接
 	conn, err := amqp.Dial(url)
@@ -191,9 +187,9 @@ func Consumer(url string, exchange string, queue string, routeKey string) error 
 	forever := make(chan bool)
 	go func() {
 		for d := range message {
-			fmt.Println(d.Type)
-			fmt.Println(d.MessageId)
-			fmt.Println(d.Body)
+			fmt.Println(helper.Now(), d.Type)
+			fmt.Println(helper.Now(), d.MessageId)
+			fmt.Println(helper.Now(), d.Body)
 		}
 	}()
 	<-forever

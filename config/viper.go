@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"github.com/woodlsy/woodGin/helper"
 )
 
 var Configs ConfigObj
@@ -35,7 +36,7 @@ func Viper(path ...string) *viper.Viper {
 	//})
 
 	if err = v.Unmarshal(&Configs); err != nil {
-		fmt.Println("配置文件解析错误", err)
+		fmt.Println(helper.Now(), "配置文件解析错误", err)
 	}
 	return v
 }

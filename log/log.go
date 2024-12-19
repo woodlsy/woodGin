@@ -79,7 +79,7 @@ func Enabled() {
 	l := zap.New(newCore, zap.AddCaller())
 	zap.ReplaceGlobals(l)
 	Logger = l.Sugar()
-	fmt.Println("日志模块加载成功")
+	fmt.Println(helper.Now(), "日志模块加载成功")
 }
 
 func getFilePathByConfig() {

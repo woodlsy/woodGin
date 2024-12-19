@@ -33,16 +33,16 @@ func (r *Request) Get(result interface{}) {
 
 	request := curl.Instance()
 	resp := request.Get(u)
-	fmt.Println("url GET:", u)
-	fmt.Println("result:", resp)
+	fmt.Println(helper.Now(), "url GET:", u)
+	fmt.Println(helper.Now(), "result:", resp)
 	if resp == "" {
-		fmt.Println("请求", u, "失败")
+		fmt.Println(helper.Now(), "请求", u, "失败")
 		return
 	}
 	err := json.Unmarshal(request.Body, &result)
 	if err != nil {
-		fmt.Println(helper.Join("", domain, r.Url))
-		fmt.Println(err)
+		fmt.Println(helper.Now(), helper.Join("", domain, r.Url))
+		fmt.Println(helper.Now(), err)
 		// log.Logger.Error("json 解析天气接口数据失败", err, string(request.Body))
 		return
 	}
@@ -60,19 +60,19 @@ func (r *Request) Post(result interface{}) string {
 		request.Data = r.CustomData
 	}
 	resp := request.Post(u)
-	fmt.Println("url POST:", u)
-	fmt.Println("请求报文:", helper.JsonEncode(r.CustomData))
+	fmt.Println(helper.Now(), "url POST:", u)
+	fmt.Println(helper.Now(), "请求报文:", helper.JsonEncode(r.CustomData))
 
 	if resp == "" {
-		fmt.Println("请求", u, "失败")
+		fmt.Println(helper.Now(), "请求", u, "失败")
 		return ""
 	}
 	if result != nil {
-		fmt.Println("result:", resp)
+		fmt.Println(helper.Now(), "result:", resp)
 		err := json.Unmarshal(request.Body, &result)
 		if err != nil {
-			fmt.Println(helper.Join("", domain, r.Url))
-			fmt.Println(err)
+			fmt.Println(helper.Now(), helper.Join("", domain, r.Url))
+			fmt.Println(helper.Now(), err)
 			return ""
 		}
 	}
@@ -117,18 +117,18 @@ func (r *Request) PostLocalFile(result interface{}, fileUrl string, fileName str
 	request.Header.Add("Content-Type", writer.FormDataContentType())
 
 	resp := request.Post(u)
-	fmt.Println("url POST:", u)
-	fmt.Println("请求报文:", helper.JsonEncode(r.CustomData))
-	fmt.Println("result:", resp)
+	fmt.Println(helper.Now(), "url POST:", u)
+	fmt.Println(helper.Now(), "请求报文:", helper.JsonEncode(r.CustomData))
+	fmt.Println(helper.Now(), "result:", resp)
 	if resp == "" {
-		fmt.Println("请求", u, "失败")
+		fmt.Println(helper.Now(), "请求", u, "失败")
 		return
 	}
 
 	err = json.Unmarshal(request.Body, &result)
 	if err != nil {
-		fmt.Println(helper.Join("", domain, r.Url))
-		fmt.Println(err)
+		fmt.Println(helper.Now(), helper.Join("", domain, r.Url))
+		fmt.Println(helper.Now(), err)
 		return
 	}
 }

@@ -109,6 +109,8 @@ func (r *Request) FetchString(url string, method string) string {
 	_, err := r.NewRequest(url, method)
 	if err == nil {
 		r.Fetch()
+	} else {
+		helper.P(err)
 	}
 	return string(r.Body)
 }

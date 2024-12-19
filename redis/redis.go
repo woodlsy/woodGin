@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/woodlsy/woodGin/config"
+	"github.com/woodlsy/woodGin/helper"
 	"github.com/woodlsy/woodGin/log"
 )
 
@@ -21,5 +22,5 @@ func Enabled() {
 		errMsg := "failed to init redis"
 		panic(errMsg)
 	}
-	fmt.Println("redis 连接成功")
+	fmt.Println(helper.Now(), "redis 连接成功")
 }
